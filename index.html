@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Technetium – a game launcher built for the couch</title>
+<meta name="description" content="Technetium is a full-screen game launcher for Windows. It finds your Steam and Epic games, works with Xbox 360 and DualShock 4 controllers, and updates Steam games without opening Steam.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700&display=swap" rel="stylesheet">
+<style>
+:root{--night:#060c18;--deep:#0b1730;--mist:#e3ecfa;--dim:#98abc8;--blue:#4aa8ff;--blue2:#1f66c9;--line:rgba(150,190,255,.16);
+  --font:"Bricolage Grotesque","Segoe UI Variable Display","Segoe UI",system-ui,sans-serif}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{background:var(--night);color:var(--mist);font:500 18px/1.6 var(--font);-webkit-font-smoothing:antialiased}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--blue);outline-offset:3px;border-radius:6px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 clamp(20px,4vw,40px)}
+nav{display:flex;justify-content:space-between;align-items:center;padding:26px 0}
+nav b{font-size:22px;font-weight:700;letter-spacing:.2px}
+nav div{display:flex;gap:28px;font-size:17px;color:var(--dim)}
+nav a{text-decoration:none}nav a:hover{color:var(--mist)}
+header.hero{padding:clamp(36px,7vw,84px) 0 40px}
+h1{font-size:clamp(40px,6.6vw,84px);line-height:1.02;font-weight:700;letter-spacing:-.025em;max-width:13em}
+.lede{margin-top:24px;max-width:36em;font-size:clamp(18px,2vw,22px);color:var(--dim)}
+.cta{display:flex;flex-wrap:wrap;gap:14px;margin-top:34px}
+.btn{display:inline-block;padding:15px 28px;border-radius:999px;font-weight:700;font-size:18px;text-decoration:none;transition:transform .2s,background .2s}
+.btn.main{background:var(--blue);color:#04152b}.btn.main:hover{transform:translateY(-2px);background:#6cb9ff}
+.btn.alt{border:1.5px solid var(--line);color:var(--mist)}.btn.alt:hover{background:rgba(74,168,255,.12)}
+.note{margin-top:14px;font-size:15px;color:var(--dim)}
+
+/* the demo: the one memorable thing */
+.screen{--h:210;position:relative;margin-top:44px;aspect-ratio:16/9;min-height:360px;border-radius:22px;overflow:hidden;border:1px solid var(--line);
+  background:radial-gradient(120% 90% at 70% 10%,hsl(var(--h) 70% 24%),#050a16 70%);transition:background .6s;box-shadow:0 40px 90px rgba(0,0,0,.55);outline-offset:6px}
+.screen::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,6,16,.5),transparent 35%,transparent 50%,rgba(2,6,16,.85))}
+.screen>*{position:absolute;z-index:1}
+.mtabs{top:4%;left:4%;right:4%;display:flex;gap:clamp(12px,3vw,34px);align-items:baseline;font-size:clamp(11px,1.7vw,20px);color:var(--dim)}
+.mtabs .on{color:var(--mist);font-weight:700;font-size:1.3em}
+.mtabs em{margin-left:auto;font-style:normal;color:var(--mist)}
+.mtitle{left:4%;bottom:52%}
+.mtitle h3{font-size:clamp(22px,4.4vw,52px);font-weight:600;letter-spacing:-.02em;line-height:1.05}
+.mtitle p{margin-top:6px;font-size:clamp(12px,1.7vw,19px);color:var(--dim)}
+.mrow{left:0;right:0;bottom:16%;display:flex;gap:clamp(10px,2vw,26px);padding:0 4%;align-items:center}
+.t{flex:none;width:clamp(70px,12%,170px);aspect-ratio:2/3;border:0;border-radius:12px;cursor:pointer;color:#fff;font:600 clamp(10px,1.4vw,17px)/1.1 var(--font);text-align:left;padding:clamp(6px,1vw,12px);display:flex;align-items:flex-end;
+  background:linear-gradient(160deg,hsl(var(--c) 62% 34%),hsl(calc(var(--c) + 24) 60% 13%));opacity:.78;transition:transform .35s cubic-bezier(.22,.7,.28,1),box-shadow .35s,opacity .35s}
+.t[aria-selected=true]{transform:scale(1.08);opacity:1;box-shadow:0 0 0 3px rgba(130,196,255,.85),0 0 34px 2px rgba(74,168,255,.35),0 22px 46px rgba(0,0,0,.55)}
+.mfoot{left:0;right:0;bottom:0;height:11%;min-height:34px;display:flex;align-items:center;gap:clamp(12px,3vw,34px);padding:0 4%;background:rgba(6,12,26,.55);font-size:clamp(10px,1.5vw,18px);color:var(--dim);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.mfoot span{display:flex;align-items:center;gap:8px}
+.mfoot b{display:inline-grid;place-items:center;min-width:1.9em;height:1.9em;border-radius:99px;background:rgba(74,168,255,.28);border:1px solid rgba(140,200,255,.35);color:#eaf4ff;font-size:.9em}
+.hint{margin-top:14px;font-size:15px;color:var(--dim)}
+
+section{padding:clamp(54px,8vw,96px) 0}
+h2{font-size:clamp(30px,4vw,48px);font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.split{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(28px,6vw,80px)}
+.split>div:first-child p{margin-top:16px;color:var(--dim);max-width:24em}
+.feat{display:grid;gap:30px}
+.feat h3{font-size:22px;font-weight:700}
+.feat p{margin-top:4px;color:var(--dim);max-width:34em}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:12px 28px;margin-top:30px;font-size:17px}
+.keys dt{color:var(--dim)}
+.keys dd b{display:inline-block;margin:0 4px 0 0;padding:1px 10px;border-radius:99px;background:rgba(74,168,255,.16);border:1px solid var(--line);font-weight:500;font-size:15px}
+ol.steps{margin-top:30px;display:grid;gap:22px;counter-reset:s;list-style:none;padding:0;max-width:40em}
+ol.steps li{counter-increment:s;display:grid;grid-template-columns:44px 1fr;gap:16px;align-items:start}
+ol.steps li::before{content:counter(s);display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:var(--blue);color:#04152b;font-weight:700}
+ol.steps strong{display:block;font-size:20px}ol.steps span{color:var(--dim)}
+details{border-top:1px solid var(--line);padding:20px 0;max-width:46em}
+details:last-of-type{border-bottom:1px solid var(--line)}
+summary{cursor:pointer;font-size:20px;font-weight:700;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";float:right;color:var(--blue);font-size:26px;line-height:1}
+details[open] summary::after{content:"–"}
+details p{margin-top:10px;color:var(--dim)}
+footer{padding:48px 0 70px;color:var(--dim);font-size:15px;border-top:1px solid var(--line)}
+footer p+p{margin-top:8px;max-width:46em}
+@media(max-width:760px){.split{grid-template-columns:1fr}nav div{gap:16px;font-size:15px}.screen{min-height:300px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav><b>Technetium</b><div><a href="#features">Features</a><a href="#install">Install</a><a href="#faq">FAQ</a><a class="repo" href="https://github.com/YOUR-NAME/YOUR-REPO">GitHub</a></div></nav>
+
+<header class="hero">
+  <h1>Your whole game library, built for the couch.</h1>
+  <p class="lede">Technetium is a full-screen game launcher for Windows. It finds your Steam and Epic games, works with Xbox 360 and DualShock 4 controllers, and stays out of the way once you press play.</p>
+  <div class="cta"><a class="btn main dl" href="https://github.com/YOUR-NAME/YOUR-REPO/releases/latest">Download for Windows</a><a class="btn alt repo" href="https://github.com/YOUR-NAME/YOUR-REPO">View the source</a></div>
+  <p class="note">Free. Windows 10 and 11.</p>
+
+  <div class="screen" id="demo" tabindex="0" aria-label="Interactive demo of the Technetium launcher. Use the arrow keys or click a game.">
+    <div class="mtabs"><span>Recent</span><span class="on">All games</span><span>Steam</span><span>Other</span><span>Settings</span><em>9:41 PM</em></div>
+    <div class="mtitle"><h3 id="dt">Moth &amp; Lantern</h3><p id="dm">Steam · Played yesterday</p></div>
+    <div class="mrow" id="drow" role="listbox" aria-label="Games"></div>
+    <div class="mfoot"><span><b>A</b>Select</span><span><b>B</b>First</span><span><b>X</b>Add game</span><span><b>Y</b>Refresh</span><span><b>LB RB</b>Switch tab</span></div>
+  </div>
+  <p class="hint">This is a live demo. Click a game, or focus it and use the arrow keys. The games shown are made up.</p>
+</header>
+
+<section id="features">
+  <div class="split">
+    <div><h2>Everything in one row.</h2><p>Pick up a controller, press a button, and play. No tiny menus and no mouse hunting.</p></div>
+    <div class="feat">
+      <div><h3>Finds your games for you</h3><p>Technetium reads your Steam libraries on every drive and your Epic Games installs. Anything else, you add by choosing its .exe.</p></div>
+      <div><h3>Made for controllers</h3><p>Xbox 360 and DualShock 4 controllers work without setup, and the button hints change to match yours. Mouse and keyboard work just as well.</p></div>
+      <div><h3>Updates Steam games without Steam</h3><p>Check for updates from Settings. Games with a newer version get a badge, and one more press installs them with a progress bar. It uses SteamCMD, Valve’s own tool.</p></div>
+      <div><h3>Updates itself</h3><p>Settings has a Check for updates button, and Technetium also looks quietly each time it starts.</p></div>
+      <div><h3>Opens when you turn on your PC</h3><p>Switch on Start with Windows in Settings and your library is waiting after you sign in.</p></div>
+      <div><h3>Comfortable to look at</h3><p>Soft blues, rounded covers, and slow, gentle motion. The layout scales from a big TV down to a small window.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="split">
+    <div><h2>Controls</h2><p>Everything is reachable from a controller, a keyboard, or a mouse.</p></div>
+    <dl class="keys">
+      <dt>Move</dt><dd><b>D-pad</b><b>Left stick</b><b>Arrow keys</b><b>Mouse wheel</b></dd>
+      <dt>Play</dt><dd><b>A</b> (✕ on PlayStation) <b>Enter</b> <b>Click</b></dd>
+      <dt>Switch tab</dt><dd><b>LB / RB</b> (L1 / R1) <b>Q / E</b></dd>
+      <dt>Jump five games</dt><dd><b>LT / RT</b> (L2 / R2) <b>PgUp / PgDn</b></dd>
+      <dt>Add a game</dt><dd><b>X</b> (□) <b>A</b> key</dd>
+      <dt>Refresh</dt><dd><b>Y</b> (△) <b>R</b></dd>
+      <dt>Back to the first game</dt><dd><b>B</b> (○) <b>Esc</b></dd>
+    </dl>
+  </div>
+</section>
+
+<section id="install">
+  <h2>Install it in a minute</h2>
+  <ol class="steps">
+    <li><div><strong>Download the installer</strong><span>Get Technetium Setup from the Releases page.</span></div></li>
+    <li><div><strong>Run it</strong><span>Windows may warn that the app is unrecognized because it isn’t code-signed. Choose More info, then Run anyway.</span></div></li>
+    <li><div><strong>Open Technetium</strong><span>Your Steam and Epic games appear on their own. Use Add game for the rest.</span></div></li>
+    <li><div><strong>Optional: turn on updates</strong><span>In Settings, choose Check game updates. The first time, a console window asks you to sign in to Steam once.</span></div></li>
+  </ol>
+  <div class="cta"><a class="btn main dl" href="https://github.com/YOUR-NAME/YOUR-REPO/releases/latest">Download for Windows</a></div>
+</section>
+
+<section id="faq">
+  <h2>Questions</h2>
+  <div style="margin-top:28px">
+    <details><summary>Does it replace Steam?</summary><p>No. Steam still runs your games and handles online play and achievements. Technetium is the screen you use to choose and start them.</p></details>
+    <details><summary>Is updating games through Technetium safe?</summary><p>It uses SteamCMD, Valve’s official command-line tool, and your own Steam account. You type your password into SteamCMD’s own window, never into Technetium. Close Steam while updating, and Steam may do a quick file check on that game afterwards.</p></details>
+    <details><summary>Which games does it find?</summary><p>Steam games on any drive and Epic Games installs. Games from other stores, including the Xbox app, can be added by choosing their .exe with Add game.</p></details>
+    <details><summary>My controller isn’t detected.</summary><p>Press any button on it once. If you use Steam Input, try turning it off for the desktop, because Steam can take control of the controller.</p></details>
+  </div>
+</section>
+
+<footer>
+  <p>Technetium is an independent project. It isn’t affiliated with or endorsed by Valve, Epic Games, Microsoft, Sony, or any game publisher.</p>
+  <p>Steam, Epic Games, Xbox, and PlayStation are trademarks of their respective owners.</p>
+</footer>
+</div>
+
+<script>
+(function(){
+  /* link the page to its own repo when hosted on GitHub Pages */
+  var m = location.hostname.match(/^(.+)\.github\.io$/);
+  if (m) {
+    var repo = location.pathname.split('/')[1] || (m[1] + '.github.io');
+    var base = 'https://github.com/' + m[1] + '/' + repo;
+    document.querySelectorAll('a.repo').forEach(function(a){ a.href = base; });
+    document.querySelectorAll('a.dl').forEach(function(a){ a.href = base + '/releases/latest'; });
+  }
+
+  /* interactive demo */
+  var games = [
+    ['Moth & Lantern','Steam · Played yesterday',215], ['Hollow Tide','Steam · Played today',190], ['Ashen Rails','Epic Games · Not played yet',250],
+    ['Kite Season','Steam · Played 3 days ago',200], ['Low Orbit','Added by you · Not played yet',225], ['Salt Road','Steam · Played 9 days ago',180]
+  ];
+  var row = document.getElementById('drow'), screen = document.getElementById('demo'), sel = 0, tiles = [];
+  games.forEach(function(g, i){
+    var b = document.createElement('button'); b.type = 'button'; b.className = 't'; b.setAttribute('role','option');
+    b.style.setProperty('--c', g[2]); b.textContent = g[0];
+    b.addEventListener('click', function(){ pick(i); }); b.addEventListener('mouseenter', function(){ pick(i); });
+    row.appendChild(b); tiles.push(b);
+  });
+  function pick(i){
+    sel = Math.max(0, Math.min(games.length - 1, i));
+    tiles.forEach(function(t, k){ t.setAttribute('aria-selected', k === sel ? 'true' : 'false'); });
+    document.getElementById('dt').textContent = games[sel][0];
+    document.getElementById('dm').textContent = games[sel][1];
+    screen.style.setProperty('--h', games[sel][2]);
+  }
+  screen.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight') { pick(sel + 1); e.preventDefault(); }
+    if (e.key === 'ArrowLeft') { pick(sel - 1); e.preventDefault(); }
+  });
+  pick(0);
+})();
+</script>
+</body>
+</html>
